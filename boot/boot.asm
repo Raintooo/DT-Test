@@ -54,7 +54,7 @@ start :
 	call FindEntry
 	
 	cmp dx, 0
-	jz notfound
+	jz output
 	
 	;copy root dir to EntryItem
 	;bx was changed in FindEntry, so bx pointed to the specified file node
@@ -79,24 +79,23 @@ loading:
 	mov ax, dx
 	add ax, 31
 	mov cx, 1     
-	push bx
 	push dx
+	push bx		;save fat table address
 	mov bx, si    
 	call ReadFloopy
-	pop cx
-	pop bx
+	pop bx	     ;get fat table address from stack
+	pop cx       ; ==> pop dx   mov cx, dx
 	
-	call FatVec  
+	call FatVec  ;dx changed in FatVec 
 	cmp dx, 0xFF7
 	jnb BaseOfLoader
 	add si, 512
 	
 	jmp loading
-	
-	jmp last
 
-notfound:
-	mov bp, MsgNotFound
+output:
+	mov dx, 0
+	mov bp, Msgoutput
 	mov cx, StrLenNF
 	call Print
 	jmp last
@@ -113,26 +112,18 @@ Print :
 	ret
 	
 ResetFloopy :
-	push ax
-	push dx
-	
+
 	mov ah, 0
 	mov dl, [BS_DrvNum]
 	
 	int 0x13
 	
-	pop dx
-	pop ax
 	ret
 
 ;cx    -->numbers of sector
 ;ex:bx -->target address
 ;ax    -->logic sector number
 ReadFloopy :
-    push bx
-    push cx
-    push dx
-    push ax
 	
 	call ResetFloopy
 	
@@ -161,10 +152,6 @@ read:
 	int 0x13
 	jc read
 	
-    pop ax
-    pop dx
-    pop cx
-    pop bx
 	ret
 
 ;ds:si --> source 
@@ -330,12 +317,11 @@ odd:  ; FatVec[j+1] = (Fat[i+2] << 4) | ( (Fat[i+1] >> 4) & 0x0F );
 return:
 	ret
 
+Msgoutput db "file was not found!"
+StrLenNF equ ($-Msgoutput)
+TestDst db "TEST"
+TestDstLen equ ($-TestDst)
+EntryItem times EntryLen db 0x00
 Buf:
 	times 510-($-$$) db 0x00
 	db 0x55, 0xaa
-
-MsgNotFound db "file was not found!"
-StrLenNF equ ($-MsgNotFound)
-TestDst db "LOADER     "
-TestDstLen equ ($-TestDst)
-EntryItem times EntryLen db 0x00
