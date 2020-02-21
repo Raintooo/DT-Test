@@ -12,7 +12,6 @@ EntryLen         equ 32
 FatEntryLength   equ 9
 FatEntryOffset   equ 1
  
-
 header : 
     BS_OEMName     db "D.T.Soft"
     BPB_BytsPerSec dw 512
@@ -88,7 +87,7 @@ loading:
 	
 	call FatVec  ;dx changed in FatVec 
 	cmp dx, 0xFF7
-	jnb BaseOfLoader
+	jnb BaseOfLoader ;jmp to loader
 	add si, 512
 	
 	jmp loading
@@ -124,7 +123,6 @@ ResetFloopy :
 ;ex:bx -->target address
 ;ax    -->logic sector number
 ReadFloopy :
-	
 	call ResetFloopy
 	
 	push bx
@@ -319,7 +317,7 @@ return:
 
 Msgoutput db "file was not found!"
 StrLenNF equ ($-Msgoutput)
-TestDst db "TEST"
+TestDst db "LOADER"
 TestDstLen equ ($-TestDst)
 EntryItem times EntryLen db 0x00
 Buf:

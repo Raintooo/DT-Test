@@ -11,23 +11,25 @@ IMG := boot.img
 IMG_PATH := /media/zhu/U
 
 all : $(BOOT_OUT) $(IMG) $(LOADER_OUT)
-	dd if=$(BOOT_OUT) of=$(IMG) count=1 bs=512 conv=notrunc
+	@dd if=$(BOOT_OUT) of=$(IMG) count=1 bs=512 conv=notrunc
 	@echo "Success!"
 	
 $(BOOT_OUT) : $(BOOT_SRC)
-	nasm $^ -o $@
+	@nasm $^ -o $@
+	@echo "Compile boot.."
 	
 $(IMG) : 
 	bximage $@ -q -fd -size=1.44
 	
 $(LOADER_OUT) : $(LOADER_SRC)
+	@echo "Compile loader.."
 	@nasm $^ -o $@
-	@mount -o loop $(IMG) $(IMG_PATH)/
-	@cp $@ $(IMG_PATH)/$@
-	@umount $(IMG_PATH)
+	@sudo mount -o loop $(IMG) $(IMG_PATH)/
+	@sudo cp $@ $(IMG_PATH)/$@
+	@sudo umount $(IMG_PATH)/
 	
 clean :
-	$(RM) $(IMG) $(BOOT_OUT)
+	$(RM) $(IMG) $(BOOT_OUT) $(LOADER_OUT)
 
 rebuild : 
 	@$(MAKE) clean
