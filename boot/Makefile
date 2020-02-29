@@ -5,6 +5,7 @@ BOOT_SRC := boot.asm
 BOOT_OUT := boot.bin
 
 LOADER_SRC := loader.asm
+INCLUDE_SRC := inc.asm
 LOADER_OUT := loader
 
 IMG := boot.img
@@ -21,15 +22,15 @@ $(BOOT_OUT) : $(BOOT_SRC)
 $(IMG) : 
 	bximage $@ -q -fd -size=1.44
 	
-$(LOADER_OUT) : $(LOADER_SRC)
+$(LOADER_OUT) : $(LOADER_SRC) $(INCLUDE_SRC)
 	@echo "Compile loader.."
-	@nasm $^ -o $@
+	@nasm $< -o $@
 	@sudo mount -o loop $(IMG) $(IMG_PATH)/
 	@sudo cp $@ $(IMG_PATH)/$@
 	@sudo umount $(IMG_PATH)/
 	
 clean :
-	$(RM) $(IMG) $(BOOT_OUT) $(LOADER_OUT)
+	$(RM) $(BOOT_OUT) $(LOADER_OUT)
 
 rebuild : 
 	@$(MAKE) clean
