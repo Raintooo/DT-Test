@@ -13,7 +13,8 @@ VIDEO_DES    :    Descriptor  0xB8000,   0x7FFFF,           DA_DRWA + DA_32
 DATA32_DESC  :    Descriptor  0,         DataLength-1,      DA_DR + DA_32
 STACK32_DESC :    Descriptor  0,         TopOfStack32Init,  DA_DRW + DA_32
 CODE16_DESC  :    Descriptor  0,         0xFFFF,  DA_C
-UPDATE_DESC  :    Descriptor  0,         0xFFFF,            DA_DRW  
+UPDATE_DESC  :    Descriptor  0,         0xFFFF,            DA_DRW
+TASK_A_DESC  :    Descriptor  0,         TaskLdtLen - 1,    DA_LDT 
 
 GdtLen  equ  $ - GDT_ENTRY
 GdtPtr:
@@ -27,6 +28,7 @@ DataSelector      equ  (0x0003 << 3) + SA_TIG + SA_RPL0
 Stack32Selector   equ  (0x0004 << 3) + SA_TIG + SA_RPL0
 Code16Selector    equ  (0x0005 << 3) + SA_TIG + SA_RPL0
 UpdateSelector    equ  (0x0006 << 3) + SA_TIG + SA_RPL0
+TaskALdtSelector  equ  (0x0007 << 3) + SA_TIG + SA_RPL0
 ;end [section .gdt]
 
 [section .dat]
@@ -68,6 +70,23 @@ ENTRY_SEGMENT:
 	
 	mov esi, CODE16_SEGMENT
 	mov edi, CODE16_DESC
+	call InitDescItem
+	
+	;Init ldt
+	mov esi, TASK_A_LDT_ENTRY
+	mov edi, TASK_A_DESC
+	call InitDescItem
+	
+	mov esi, TASK_A_STACK_SEGMENT
+	mov edi, TASKA_STACK32_DESC
+	call InitDescItem
+	
+	mov esi, TASK_A_CODE_SEGMENT
+	mov edi, TASKA_CODE32_DESC
+	call InitDescItem
+	
+	mov esi, TASK_A_DATA_SEGMENT
+	mov edi, TASKA_DATA32_DESC
 	call InitDescItem
 	
 	; initialize GDT pointer struct 初始化 GDT基地址
@@ -184,7 +203,12 @@ CODE32_SEGMENT:
 	mov bx, 0x0c
 	call PrintString
 	
-	jmp Code16Selector : 0
+	mov ax, TaskALdtSelector
+	lldt ax
+	jmp TaskACode32Selector : 0 
+	
+	;jmp Code16Selector : 0
+
 
 ; print string by Graphics
 ; ds:ebp --> string address
@@ -228,6 +252,109 @@ STACK32_SEGMENT:
 
 Stack32SegLen equ  $ - STACK32_SEGMENT
 TopOfStack32Init equ Stack32SegLen - 1
+
+; =============================================================
+;                 Task A
+; =============================================================
+[section .task_a_ldt]
+[bits 32]
+;                                 段基址        段界限            段属性
+TASK_A_LDT_ENTRY:
+TASKA_DATA32_DESC  :  Descriptor   0,       TaskADataSegLen - 1,  DA_DR + DA_32
+TASKA_STACK32_DESC :  Descriptor   0,       TaskAStackSegLen - 1, DA_DRW + DA_32
+TASKA_CODE32_DESC  :  Descriptor   0,       TaskACodeSegLen - 1,  DA_C + DA_32
+
+TaskLdtLen  equ  $ - TASK_A_LDT_ENTRY
+
+;Selector
+TaskAData32Selector    equ    (0x0000 << 3) + SA_TIL + SA_RPL0
+TaskAStack32Selector   equ    (0x0001 << 3) + SA_TIL + SA_RPL0
+TaskACode32Selector    equ    (0x0002 << 3) + SA_TIL + SA_RPL0
+
+[section .task_a_data]
+[bits 32]
+TASK_A_DATA_SEGMENT:
+	TASK_STRING         db "This is Task A", 0
+	TASK_STRING_OFFSET  equ  TASK_STRING - $$
+	
+TaskADataSegLen  equ  $ - TASK_A_DATA_SEGMENT
+	
+[section .task_a_stack]
+[bits 32]
+TASK_A_STACK_SEGMENT:
+	times 1024 db 0
+	
+TaskAStackSegLen  equ  $ - TASK_A_STACK_SEGMENT
+TaskATopOfStack   equ  TaskAStackSegLen - 1
+
+[section .task_a_code]
+[bits 32]
+TASK_A_CODE_SEGMENT:
+	mov ax, VideoSelector
+	mov gs, ax
+	
+	mov ax, TaskAStack32Selector
+	mov ss, ax
+	
+	mov eax, TaskATopOfStack
+	mov esp, eax
+	
+	mov ax, TaskAData32Selector
+	mov ds, ax
+	
+	mov ebp, TASK_STRING_OFFSET
+	mov dh, 12
+	mov dl, 35
+	mov bx, 0x0c
+	call TaskAPrintString
+	
+	jmp Code16Selector : 0
+	
+TaskAPrintString:
+	push cx
+	push dx
+	push eax
+	push ebp
+	push edi
+TaskAprint:
+	mov cl, [ds:ebp]
+	cmp cl, 0
+	je TaskAend
+	
+	mov eax, 80
+	mul dh
+	add al, dl
+	shl eax, 1
+	mov edi, eax
+	mov ah, bl
+	mov al, cl
+	mov [gs:edi], ax
+	
+	inc ebp
+	inc dl
+	jmp TaskAprint
+TaskAend:
+	pop edi
+	pop ebp
+	pop eax
+	pop dx
+	pop cx
+	ret	
+
+	
+TaskACodeSegLen  equ  $ - TASK_A_CODE_SEGMENT
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 	

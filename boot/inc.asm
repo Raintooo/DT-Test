@@ -9,6 +9,9 @@ DA_CR     equ    0x9A
 DA_CCO    equ    0x9C
 DA_CCOR   equ    0x9E
 
+;Special Attribute
+DA_LDT    equ    0x82
+
 ; Selector Attribute
 ; RPL
 SA_RPL0   equ    0
@@ -29,12 +32,12 @@ SA_TIL    equ    4  ;LDT
 	db    (%1 >> 24) & 0xFF                   ;段基址3
 %endmacro
 
-%macro VideoPrint 2
-	mov ax, VideoSelector
-	mov gs, ax
-	
-	mov edi, (12 * 80 + %2)*2
-	mov ah, 0x8a                ;8位设置颜色 7:设置闪烁 4-6:设置背景色rgb 3:设置高亮 0-2前景色rgb
-	mov al, %1
-	mov [gs:edi], ax
-%endmacro
+;%macro VideoPrint 2
+;	mov ax, VideoSelector
+;	mov gs, ax
+;	
+;	mov edi, (12 * 80 + %2)*2
+;	mov ah, 0x8a                ;8位设置颜色 7:设置闪烁 4-6:设置背景色rgb 3:设置高亮 0-2前景色rgb
+;	mov al, %1
+;	mov [gs:edi], ax
+;%endmacro
