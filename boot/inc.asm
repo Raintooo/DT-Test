@@ -8,6 +8,7 @@ DA_C      equ    0x98     ;只执行
 DA_CR     equ    0x9A     ;可执行可读
 DA_CCO    equ    0x9C     ;只执行一致代码段
 DA_CCOR   equ    0x9E     ;可执行可读一致代码段
+DA_LIMIT_4K    equ       0x8000
 
 ;Special Attribute
 DA_LDT       equ    0x82
@@ -33,6 +34,12 @@ SA_RPL3   equ    3
 ;TI
 SA_TIG    equ    0  ;GDT
 SA_TIL    equ    4  ;LDT
+
+PG_P    equ    1    ; 页存在属性位
+PG_RWR  equ    0    ; R/W 属性位值, 读/执行
+PG_RWW  equ    2    ; R/W 属性位值, 读/写/执行
+PG_USS  equ    0    ; U/S 属性位值, 系统级
+PG_USU  equ    4    ; U/S 属性位值, 用户级
 
 ; Segment Definition
 ; Usage : Descriptor   Base   Limit  Attr
