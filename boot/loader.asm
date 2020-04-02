@@ -8,8 +8,8 @@ PageDirBase1    equ   0x700000
 PageTblBase1    equ   0x701000
 
 ObjAddr         equ   0x401000
-PageTargetX     equ   0x501000
-PageTargetY     equ   0x801000
+PageTargetX     equ   0xE01000
+PageTargetY     equ   0xF01000
 
 jmp ENTRY_SEGMENT
 
@@ -26,6 +26,8 @@ PAGETBL_DESC0     :     Descriptor    PageTblBase0,     1023,            DA_DRW 
 PAGEDIR_DESC1     :     Descriptor    PageDirBase1,     4095,            DA_DRW + DA_32
 PAGETBL_DESC1     :     Descriptor    PageTblBase1,     1023,            DA_DRW + DA_32 + DA_LIMIT_4K
 FLAT_MODE_RW_DESC :     Descriptor        0,            0xFFFFF,         DA_DRW + DA_32 + DA_LIMIT_4K
+FUNC32_DESC       :     Descriptor        0,           Func32SegLen-1,   DA_DRW + DA_32 + DA_LIMIT_4K
+FALT_MODE_C_DESC  :     Descriptor        0,            0xFFFFF,         DA_C   + DA_32 + DA_LIMIT_4K
 ; GDT end
 
 GdtLen    equ   $ - GDT_ENTRY
@@ -46,6 +48,8 @@ PageTblSelector0   equ (0x0006 << 3) + SA_TIG + SA_RPL0
 PageDirSelector1   equ (0x0007 << 3) + SA_TIG + SA_RPL0
 PageTblSelector1   equ (0x0008 << 3) + SA_TIG + SA_RPL0
 FlatModeRWSelector equ (0x0009 << 3) + SA_TIG + SA_RPL0
+Func32Selector     equ (0x000a << 3) + SA_TIG + SA_RPL0 
+FaltModeCSelector  equ (0x000b << 3) + SA_TIG + SA_RPL0 
 ; end of [section .gdt]
 
 TopOfStack16    equ 0x7c00
@@ -61,6 +65,38 @@ DATA32_SEGMENT:
     HELLO_WORLD_OFFSET equ HELLO_WORLD - $$
 
 Data32SegLen equ $ - DATA32_SEGMENT
+
+[section .func]
+[bits 32]
+FUNC32_SEGMENT:
+
+; cx -> n
+sqrt:
+	push cx
+	mov eax, 0
+	mov ax, cx
+	mul cx
+	pop cx
+	retf
+FuncSqrtLen  equ $ - sqrt
+SqrtFunc     equ  sqrt - $$
+
+; cx ->n
+; return ax
+sum:
+	push cx
+	mov eax, 0
+loopsum:
+	add ax, cx
+	loop loopsum 
+	
+	pop cx
+	retf
+FuncSumLen  equ $ - sum
+SumFunc     equ sum - $$
+
+Func32SegLen equ $ - FUNC32_SEGMENT
+
 
 [section .s16]
 [bits 16]
@@ -81,9 +117,14 @@ ENTRY_SEGMENT:
     mov edi, DATA32_DESC
     
     call InitDescItem
+	
+	mov esi, DATA32_SEGMENT
+    mov edi, DATA32_DESC
     
-    mov esi, STACK32_SEGMENT
-    mov edi, STACK32_DESC
+    call InitDescItem
+    
+    mov esi, FUNC32_SEGMENT
+    mov edi, FUNC32_DESC
     
     call InitDescItem
     
@@ -145,15 +186,18 @@ CODE32_SEGMENT:
     mov eax, TopOfStack32
     mov esp, eax
 	
-    mov ax, Data32Selector
+    mov ax, Func32Selector
     mov ds, ax
+	
+	mov ax, FlatModeRWSelector
+	mov es, ax
     
-    mov ebp, DTOS_OFFSET
-    mov bx, 0x0C
-    mov dh, 12
-    mov dl, 33
+;    mov ebp, DTOS_OFFSET
+;    mov bx, 0x0C
+;    mov dh, 12
+;    mov dl, 33
     
-    call PrintString
+;    call PrintString
 	
 	mov eax, PageDirSelector1
 	mov ebx, PageTblSelector1
@@ -166,24 +210,24 @@ CODE32_SEGMENT:
 	call InitPageTable
 
     
-    mov ebp, HELLO_WORLD_OFFSET
-    mov bx, 0x0C
-    mov dh, 13
-    mov dl, 31
-	call PrintString
+;    mov ebp, HELLO_WORLD_OFFSET
+;    mov bx, 0x0C
+;    mov dh, 13
+;    mov dl, 31
+;	call PrintString
 	
 	mov ax, FlatModeRWSelector
 	mov es, ax
-	mov esi, DTOS_OFFSET
-	mov ecx, DTOS_LEN
+	mov esi, SqrtFunc
+	mov ecx, FuncSqrtLen
 	mov edi, PageTargetX
 	call MemCpy32
 	
 	mov ax, FlatModeRWSelector
 	mov es, ax
-	mov esi, HELLO_WORLD_OFFSET
+	mov esi, SumFunc
 	mov edi, PageTargetY
-	mov ecx, HELLO_LEN
+	mov ecx, FuncSumLen
 	call MemCpy32
 	
 	
@@ -197,6 +241,20 @@ CODE32_SEGMENT:
 	mov ebx, PageTargetY
 	mov ecx, PageDirBase1
 	call MapAddress
+	
+	
+	mov eax, PageDirBase0
+	call SwitchPageTable
+	
+	mov ecx, 100
+	call FaltModeCSelector:PageTargetX
+	
+	mov eax, PageDirBase1
+	call SwitchPageTable
+	
+	mov ecx, 100
+	call FaltModeCSelector:PageTargetY
+	
 
     jmp $
 	
