@@ -97,6 +97,18 @@ SumFunc     equ sum - $$
 
 Func32SegLen equ $ - FUNC32_SEGMENT
 
+[section .sysdat]
+SYS_DATA32_SEGMENT:
+MEM_SIZE              times  4    db 0
+MEM_SIZE_OFFSET       equ  MEM_SIZE - $$
+
+MEM_AEDS_NUM          times  4    db 0
+MEM_AEDS_NUM_OFFSET   equ  MEM_AEDS_NUM - $$
+
+MEM_ARDS              times 64*20 db 0
+MEM_ARDS_OFFSET       equ  MEM_ARDS - $$
+
+SysData32Len equ $ - SYS_DATA32_SEGMENT
 
 [section .s16]
 [bits 16]
@@ -106,6 +118,9 @@ ENTRY_SEGMENT:
     mov es, ax
     mov ss, ax
     mov sp, TopOfStack16
+	
+;	call GetMemSize
+	call InitMemBuf
     
     ; initialize GDT for 32 bits code segment
     mov esi, CODE32_SEGMENT
@@ -155,6 +170,7 @@ ENTRY_SEGMENT:
     jmp dword Code32Selector : 0
 
 
+
 ; esi    --> code segment label
 ; edi    --> descriptor label
 InitDescItem:
@@ -173,6 +189,95 @@ InitDescItem:
     
     ret
 
+; return eax  0 --> success	
+InitMemBuf:
+	push edi
+	push edx
+	push ecx
+	push ebx
+
+	mov dword [MEM_AEDS_NUM], 0
+	mov dword [MEM_ARDS], 0
+	mov edi, MEM_ARDS
+	mov ebx, 0
+	
+	call GetMemSize
+	
+doloop:
+	mov eax, 0xE820
+	mov edx, 0x534D4150
+	mov ecx, 20
+	int 0x15
+	
+	jc geterr
+	
+	cmp dword [edi + 16], 1 ; MEM_ARDS + 16  --> get type
+	jne next
+	
+	mov eax, [edi]
+	add eax, [edi + 8]
+	cmp [MEM_SIZE], eax
+	jnb next
+	
+	mov dword [MEM_SIZE], eax
+	
+next:
+	add edi, 20
+	inc dword [MEM_AEDS_NUM]
+	cmp ebx, 0
+	jne doloop
+	
+	mov eax, 0
+	jmp memok
+	
+geterr:
+	mov dword [MEM_AEDS_NUM], 0
+	mov eax, 1
+
+memok:
+	
+	pop ebx
+	pop ecx
+	pop edx
+	pop edi
+
+	ret
+
+GetMemSize:
+	push eax
+	push ebx
+	push ecx
+	push edx
+	
+	xor eax, eax
+	mov dword [MEM_SIZE], 0
+	mov eax, 0xE801
+	int 0x15
+	
+	jc geterror
+		
+	shl eax, 10
+	shl ebx, 6
+	shl ebx, 10
+	
+	mov ecx, 1
+	shl ecx, 20
+	add dword [MEM_SIZE], ecx
+	add dword [MEM_SIZE], eax
+	add dword [MEM_SIZE], ebx
+	
+	jmp getok
+	
+geterror:
+	mov dword [MEM_SIZE], 0
+
+getok:
+
+	pop edx
+	pop ecx
+	pop ebx
+	pop eax
+	ret
     
 [section .s32]
 [bits 32]
@@ -247,13 +352,13 @@ CODE32_SEGMENT:
 	call SwitchPageTable
 	
 	mov ecx, 100
-	call FaltModeCSelector:PageTargetX
+	call FaltModeCSelector:ObjAddr
 	
 	mov eax, PageDirBase1
 	call SwitchPageTable
 	
 	mov ecx, 100
-	call FaltModeCSelector:PageTargetY
+	call FaltModeCSelector:ObjAddr
 	
 
     jmp $
