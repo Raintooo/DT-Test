@@ -1,0 +1,1 @@
+objs/kmain.o deps/kmain.dep : kmain.c kernel.h

@@ -11,7 +11,7 @@ LOADER_OUT := loader
 IMG := boot.img
 IMG_PATH := /media/zhu/U
 
-all : $(BOOT_OUT) $(IMG) $(LOADER_OUT)
+all : $(IMG) $(BOOT_OUT) $(LOADER_OUT)
 	@dd if=$(BOOT_OUT) of=$(IMG) count=1 bs=512 conv=notrunc
 	@echo "Success!"
 	

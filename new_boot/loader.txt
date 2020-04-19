@@ -1,0 +1,541 @@
+00009000  EB3C              jmp short 0x903e
+00009002  90                nop
+00009003  44                inc sp
+00009004  2E54              cs push sp
+00009006  2E53              cs push bx
+00009008  6F                outsw
+00009009  667400            o32 jz 0x900c
+0000900C  0201              add al,[bx+di]
+0000900E  0100              add [bx+si],ax
+00009010  02E0              add ah,al
+00009012  00400B            add [bx+si+0xb],al
+00009015  F00900            lock or [bx+si],ax
+00009018  1200              adc al,[bx+si]
+0000901A  0200              add al,[bx+si]
+0000901C  0000              add [bx+si],al
+0000901E  0000              add [bx+si],al
+00009020  0000              add [bx+si],al
+00009022  0000              add [bx+si],al
+00009024  0000              add [bx+si],al
+00009026  2900              sub [bx+si],ax
+00009028  0000              add [bx+si],al
+0000902A  00442E            add [si+0x2e],al
+0000902D  54                push sp
+0000902E  2E4F              cs dec di
+00009030  53                push bx
+00009031  2D302E            sub ax,0x2e30
+00009034  3031              xor [bx+di],dh
+00009036  46                inc si
+00009037  41                inc cx
+00009038  54                push sp
+00009039  3132              xor [bp+si],si
+0000903B  2020              and [bx+si],ah
+0000903D  20E9              and cl,ch
+0000903F  A301B9            mov [0xb901],ax
+00009042  0E                push cs
+00009043  00B81300          add [bx+si+0x13],bh
+00009047  BB9192            mov bx,0x9291
+0000904A  E88400            call word 0x90d1
+0000904D  BA0000            mov dx,0x0
+00009050  BEBD91            mov si,0x91bd
+00009053  B90600            mov cx,0x6
+00009056  E8E800            call word 0x9141
+00009059  83FA00            cmp dx,byte +0x0
+0000905C  745E              jz 0x90bc
+0000905E  89DE              mov si,bx
+00009060  BFE08F            mov di,0x8fe0
+00009063  B92000            mov cx,0x20
+00009066  E8A700            call word 0x9110
+00009069  B80900            mov ax,0x9
+0000906C  8B0E0B90          mov cx,[0x900b]
+00009070  F7E1              mul cx
+00009072  BB00B0            mov bx,0xb000
+00009075  29C3              sub bx,ax
+00009077  B80100            mov ax,0x1
+0000907A  B90900            mov cx,0x9
+0000907D  E85100            call word 0x90d1
+00009080  8B16FA8F          mov dx,[0x8ffa]
+00009084  BE000B            mov si,0xb00
+00009087  8EC6              mov es,si
+00009089  BE0000            mov si,0x0
+0000908C  89D0              mov ax,dx
+0000908E  83C01F            add ax,byte +0x1f
+00009091  B90100            mov cx,0x1
+00009094  52                push dx
+00009095  53                push bx
+00009096  89F3              mov bx,si
+00009098  E83600            call word 0x90d1
+0000909B  5B                pop bx
+0000909C  59                pop cx
+0000909D  E8C600            call word 0x9166
+000090A0  81FAF70F          cmp dx,0xff7
+000090A4  7316              jnc 0x90bc
+000090A6  81C60002          add si,0x200
+000090AA  83FE00            cmp si,byte +0x0
+000090AD  750B              jnz 0x90ba
+000090AF  8CC6              mov si,es
+000090B1  81C60010          add si,0x1000
+000090B5  8EC6              mov es,si
+000090B7  BE0000            mov si,0x0
+000090BA  EBD0              jmp short 0x908c
+000090BC  C3                ret
+000090BD  B80113            mov ax,0x1301
+000090C0  BB0700            mov bx,0x7
+000090C3  CD10              int 0x10
+000090C5  C3                ret
+000090C6  50                push ax
+000090C7  B400              mov ah,0x0
+000090C9  8A162490          mov dl,[0x9024]
+000090CD  CD13              int 0x13
+000090CF  58                pop ax
+000090D0  C3                ret
+000090D1  E8F2FF            call word 0x90c6
+000090D4  53                push bx
+000090D5  51                push cx
+000090D6  8A1E1890          mov bl,[0x9018]
+000090DA  F6F3              div bl
+000090DC  88C6              mov dh,al
+000090DE  80E601            and dh,0x1
+000090E1  88C5              mov ch,al
+000090E3  D0ED              shr ch,1
+000090E5  88E1              mov cl,ah
+000090E7  80C101            add cl,0x1
+000090EA  58                pop ax
+000090EB  5B                pop bx
+000090EC  8A162490          mov dl,[0x9024]
+000090F0  B402              mov ah,0x2
+000090F2  CD13              int 0x13
+000090F4  72FC              jc 0x90f2
+000090F6  C3                ret
+000090F7  56                push si
+000090F8  57                push di
+000090F9  50                push ax
+000090FA  83F900            cmp cx,byte +0x0
+000090FD  740D              jz 0x910c
+000090FF  8A04              mov al,[si]
+00009101  3A05              cmp al,[di]
+00009103  7402              jz 0x9107
+00009105  EB05              jmp short 0x910c
+00009107  46                inc si
+00009108  47                inc di
+00009109  49                dec cx
+0000910A  EBEE              jmp short 0x90fa
+0000910C  58                pop ax
+0000910D  5F                pop di
+0000910E  5E                pop si
+0000910F  C3                ret
+00009110  56                push si
+00009111  57                push di
+00009112  51                push cx
+00009113  50                push ax
+00009114  39FE              cmp si,di
+00009116  7708              ja 0x9120
+00009118  01CE              add si,cx
+0000911A  01CF              add di,cx
+0000911C  4E                dec si
+0000911D  4F                dec di
+0000911E  EB0E              jmp short 0x912e
+00009120  83F900            cmp cx,byte +0x0
+00009123  7417              jz 0x913c
+00009125  8A04              mov al,[si]
+00009127  8805              mov [di],al
+00009129  47                inc di
+0000912A  46                inc si
+0000912B  49                dec cx
+0000912C  EBF2              jmp short 0x9120
+0000912E  83F900            cmp cx,byte +0x0
+00009131  7409              jz 0x913c
+00009133  8A04              mov al,[si]
+00009135  8805              mov [di],al
+00009137  4F                dec di
+00009138  4E                dec si
+00009139  49                dec cx
+0000913A  EBF2              jmp short 0x912e
+0000913C  5E                pop si
+0000913D  5F                pop di
+0000913E  59                pop cx
+0000913F  58                pop ax
+00009140  C3                ret
+00009141  57                push di
+00009142  55                push bp
+00009143  51                push cx
+00009144  8B161190          mov dx,[0x9011]
+00009148  89E5              mov bp,sp
+0000914A  83FA00            cmp dx,byte +0x0
+0000914D  7413              jz 0x9162
+0000914F  89DF              mov di,bx
+00009151  8B4E00            mov cx,[bp+0x0]
+00009154  E8A0FF            call word 0x90f7
+00009157  83F900            cmp cx,byte +0x0
+0000915A  7406              jz 0x9162
+0000915C  4A                dec dx
+0000915D  83C320            add bx,byte +0x20
+00009160  EBE8              jmp short 0x914a
+00009162  59                pop cx
+00009163  5D                pop bp
+00009164  5F                pop di
+00009165  C3                ret
+00009166  51                push cx
+00009167  89C8              mov ax,cx
+00009169  D1E8              shr ax,1
+0000916B  B400              mov ah,0x0
+0000916D  B90300            mov cx,0x3
+00009170  F7E1              mul cx
+00009172  89C1              mov cx,ax
+00009174  58                pop ax
+00009175  83E001            and ax,byte +0x1
+00009178  7402              jz 0x917c
+0000917A  EB1B              jmp short 0x9197
+0000917C  89CA              mov dx,cx
+0000917E  83C201            add dx,byte +0x1
+00009181  01DA              add dx,bx
+00009183  89D5              mov bp,dx
+00009185  8A5600            mov dl,[bp+0x0]
+00009188  80E20F            and dl,0xf
+0000918B  C1E208            shl dx,byte 0x8
+0000918E  01D9              add cx,bx
+00009190  89CD              mov bp,cx
+00009192  0A5600            or dl,[bp+0x0]
+00009195  EB25              jmp short 0x91bc
+00009197  89CA              mov dx,cx
+00009199  83C202            add dx,byte +0x2
+0000919C  01DA              add dx,bx
+0000919E  89D5              mov bp,dx
+000091A0  8A5600            mov dl,[bp+0x0]
+000091A3  B600              mov dh,0x0
+000091A5  C1E204            shl dx,byte 0x4
+000091A8  83C101            add cx,byte +0x1
+000091AB  01D9              add cx,bx
+000091AD  89CD              mov bp,cx
+000091AF  8A4E00            mov cl,[bp+0x0]
+000091B2  B500              mov ch,0x0
+000091B4  C1E904            shr cx,byte 0x4
+000091B7  83E10F            and cx,byte +0xf
+000091BA  09CA              or dx,cx
+000091BC  C3                ret
+000091BD  4B                dec bx
+000091BE  45                inc bp
+000091BF  52                push dx
+000091C0  4E                dec si
+000091C1  45                inc bp
+000091C2  4C                dec sp
+000091C3  0000              add [bx+si],al
+000091C5  0000              add [bx+si],al
+000091C7  0000              add [bx+si],al
+000091C9  0000              add [bx+si],al
+000091CB  00FF              add bh,bh
+000091CD  FF00              inc word [bx+si]
+000091CF  0000              add [bx+si],al
+000091D1  98                cbw
+000091D2  4F                dec di
+000091D3  00060000          add [0x0],al
+000091D7  0000              add [bx+si],al
+000091D9  98                cbw
+000091DA  40                inc ax
+000091DB  0017              add [bx],dl
+000091DD  0000              add [bx+si],al
+000091DF  0000              add [bx+si],al
+000091E1  0000              add [bx+si],al
+000091E3  008CC88E          add [si-0x7138],cl
+000091E7  D88EC08E          fmul dword [bp-0x7140]
+000091EB  D0BCE08F          sar byte [si-0x7020],1
+000091EF  66BE78920000      mov esi,0x9278
+000091F5  66BFD4910000      mov edi,0x91d4
+000091FB  E85600            call word 0x9254
+000091FE  66B800000000      mov eax,0x0
+00009204  8CD8              mov ax,ds
+00009206  66C1E004          shl eax,byte 0x4
+0000920A  6605C4910000      add eax,0x91c4
+00009210  66A3DE91          mov [0x91de],eax
+00009214  E82AFE            call word 0x9041
+00009217  83FA00            cmp dx,byte +0x0
+0000921A  742A              jz 0x9246
+0000921C  0F0116DC91        lgdt [0x91dc]
+00009221  FA                cli
+00009222  9C                pushfw
+00009223  6658              pop eax
+00009225  660D00300000      or eax,0x3000
+0000922B  6650              push eax
+0000922D  9D                popfw
+0000922E  E492              in al,0x92
+00009230  0C02              or al,0x2
+00009232  E692              out 0x92,al
+00009234  0F20C0            mov eax,cr0
+00009237  6683C801          or eax,byte +0x1
+0000923B  0F22C0            mov cr0,eax
+0000923E  66EA000000001000  jmp dword 0x10:0x0
+00009246  BA0000            mov dx,0x0
+00009249  BD7F92            mov bp,0x927f
+0000924C  B91200            mov cx,0x12
+0000924F  E86BFE            call word 0x90bd
+00009252  EBFE              jmp short 0x9252
+00009254  6650              push eax
+00009256  66B800000000      mov eax,0x0
+0000925C  8CC8              mov ax,cs
+0000925E  66C1E004          shl eax,byte 0x4
+00009262  6601F0            add eax,esi
+00009265  67894702          mov [edi+0x2],ax
+00009269  66C1E810          shr eax,byte 0x10
+0000926D  67884704          mov [edi+0x4],al
+00009271  67886707          mov [edi+0x7],ah
+00009275  6658              pop eax
+00009277  C3                ret
+00009278  EA00B00000        jmp word 0x0:0xb000
+0000927D  0800              or [bx+si],al
+0000927F  4B                dec bx
+00009280  45                inc bp
+00009281  52                push dx
+00009282  4E                dec si
+00009283  45                inc bp
+00009284  4C                dec sp
+00009285  2020              and [bx+si],ah
+00009287  6E                outsb
+00009288  6F                outsw
+00009289  7420              jz 0x92ab
+0000928B  666F              outsd
+0000928D  756E              jnz 0x92fd
+0000928F  642100            and [fs:bx+si],ax
+00009292  0000              add [bx+si],al
+00009294  0000              add [bx+si],al
+00009296  0000              add [bx+si],al
+00009298  0000              add [bx+si],al
+0000929A  0000              add [bx+si],al
+0000929C  0000              add [bx+si],al
+0000929E  0000              add [bx+si],al
+000092A0  0000              add [bx+si],al
+000092A2  0000              add [bx+si],al
+000092A4  0000              add [bx+si],al
+000092A6  0000              add [bx+si],al
+000092A8  0000              add [bx+si],al
+000092AA  0000              add [bx+si],al
+000092AC  0000              add [bx+si],al
+000092AE  0000              add [bx+si],al
+000092B0  0000              add [bx+si],al
+000092B2  0000              add [bx+si],al
+000092B4  0000              add [bx+si],al
+000092B6  0000              add [bx+si],al
+000092B8  0000              add [bx+si],al
+000092BA  0000              add [bx+si],al
+000092BC  0000              add [bx+si],al
+000092BE  0000              add [bx+si],al
+000092C0  0000              add [bx+si],al
+000092C2  0000              add [bx+si],al
+000092C4  0000              add [bx+si],al
+000092C6  0000              add [bx+si],al
+000092C8  0000              add [bx+si],al
+000092CA  0000              add [bx+si],al
+000092CC  0000              add [bx+si],al
+000092CE  0000              add [bx+si],al
+000092D0  0000              add [bx+si],al
+000092D2  0000              add [bx+si],al
+000092D4  0000              add [bx+si],al
+000092D6  0000              add [bx+si],al
+000092D8  0000              add [bx+si],al
+000092DA  0000              add [bx+si],al
+000092DC  0000              add [bx+si],al
+000092DE  0000              add [bx+si],al
+000092E0  0000              add [bx+si],al
+000092E2  0000              add [bx+si],al
+000092E4  0000              add [bx+si],al
+000092E6  0000              add [bx+si],al
+000092E8  0000              add [bx+si],al
+000092EA  0000              add [bx+si],al
+000092EC  0000              add [bx+si],al
+000092EE  0000              add [bx+si],al
+000092F0  0000              add [bx+si],al
+000092F2  0000              add [bx+si],al
+000092F4  0000              add [bx+si],al
+000092F6  0000              add [bx+si],al
+000092F8  0000              add [bx+si],al
+000092FA  0000              add [bx+si],al
+000092FC  0000              add [bx+si],al
+000092FE  0000              add [bx+si],al
+00009300  0000              add [bx+si],al
+00009302  0000              add [bx+si],al
+00009304  0000              add [bx+si],al
+00009306  0000              add [bx+si],al
+00009308  0000              add [bx+si],al
+0000930A  0000              add [bx+si],al
+0000930C  0000              add [bx+si],al
+0000930E  0000              add [bx+si],al
+00009310  0000              add [bx+si],al
+00009312  0000              add [bx+si],al
+00009314  0000              add [bx+si],al
+00009316  0000              add [bx+si],al
+00009318  0000              add [bx+si],al
+0000931A  0000              add [bx+si],al
+0000931C  0000              add [bx+si],al
+0000931E  0000              add [bx+si],al
+00009320  0000              add [bx+si],al
+00009322  0000              add [bx+si],al
+00009324  0000              add [bx+si],al
+00009326  0000              add [bx+si],al
+00009328  0000              add [bx+si],al
+0000932A  0000              add [bx+si],al
+0000932C  0000              add [bx+si],al
+0000932E  0000              add [bx+si],al
+00009330  0000              add [bx+si],al
+00009332  0000              add [bx+si],al
+00009334  0000              add [bx+si],al
+00009336  0000              add [bx+si],al
+00009338  0000              add [bx+si],al
+0000933A  0000              add [bx+si],al
+0000933C  0000              add [bx+si],al
+0000933E  0000              add [bx+si],al
+00009340  0000              add [bx+si],al
+00009342  0000              add [bx+si],al
+00009344  0000              add [bx+si],al
+00009346  0000              add [bx+si],al
+00009348  0000              add [bx+si],al
+0000934A  0000              add [bx+si],al
+0000934C  0000              add [bx+si],al
+0000934E  0000              add [bx+si],al
+00009350  0000              add [bx+si],al
+00009352  0000              add [bx+si],al
+00009354  0000              add [bx+si],al
+00009356  0000              add [bx+si],al
+00009358  0000              add [bx+si],al
+0000935A  0000              add [bx+si],al
+0000935C  0000              add [bx+si],al
+0000935E  0000              add [bx+si],al
+00009360  0000              add [bx+si],al
+00009362  0000              add [bx+si],al
+00009364  0000              add [bx+si],al
+00009366  0000              add [bx+si],al
+00009368  0000              add [bx+si],al
+0000936A  0000              add [bx+si],al
+0000936C  0000              add [bx+si],al
+0000936E  0000              add [bx+si],al
+00009370  0000              add [bx+si],al
+00009372  0000              add [bx+si],al
+00009374  0000              add [bx+si],al
+00009376  0000              add [bx+si],al
+00009378  0000              add [bx+si],al
+0000937A  0000              add [bx+si],al
+0000937C  0000              add [bx+si],al
+0000937E  0000              add [bx+si],al
+00009380  0000              add [bx+si],al
+00009382  0000              add [bx+si],al
+00009384  0000              add [bx+si],al
+00009386  0000              add [bx+si],al
+00009388  0000              add [bx+si],al
+0000938A  0000              add [bx+si],al
+0000938C  0000              add [bx+si],al
+0000938E  0000              add [bx+si],al
+00009390  0000              add [bx+si],al
+00009392  0000              add [bx+si],al
+00009394  0000              add [bx+si],al
+00009396  0000              add [bx+si],al
+00009398  0000              add [bx+si],al
+0000939A  0000              add [bx+si],al
+0000939C  0000              add [bx+si],al
+0000939E  0000              add [bx+si],al
+000093A0  0000              add [bx+si],al
+000093A2  0000              add [bx+si],al
+000093A4  0000              add [bx+si],al
+000093A6  0000              add [bx+si],al
+000093A8  0000              add [bx+si],al
+000093AA  0000              add [bx+si],al
+000093AC  0000              add [bx+si],al
+000093AE  0000              add [bx+si],al
+000093B0  0000              add [bx+si],al
+000093B2  0000              add [bx+si],al
+000093B4  0000              add [bx+si],al
+000093B6  0000              add [bx+si],al
+000093B8  0000              add [bx+si],al
+000093BA  0000              add [bx+si],al
+000093BC  0000              add [bx+si],al
+000093BE  0000              add [bx+si],al
+000093C0  0000              add [bx+si],al
+000093C2  0000              add [bx+si],al
+000093C4  0000              add [bx+si],al
+000093C6  0000              add [bx+si],al
+000093C8  0000              add [bx+si],al
+000093CA  0000              add [bx+si],al
+000093CC  0000              add [bx+si],al
+000093CE  0000              add [bx+si],al
+000093D0  0000              add [bx+si],al
+000093D2  0000              add [bx+si],al
+000093D4  0000              add [bx+si],al
+000093D6  0000              add [bx+si],al
+000093D8  0000              add [bx+si],al
+000093DA  0000              add [bx+si],al
+000093DC  0000              add [bx+si],al
+000093DE  0000              add [bx+si],al
+000093E0  0000              add [bx+si],al
+000093E2  0000              add [bx+si],al
+000093E4  0000              add [bx+si],al
+000093E6  0000              add [bx+si],al
+000093E8  0000              add [bx+si],al
+000093EA  0000              add [bx+si],al
+000093EC  0000              add [bx+si],al
+000093EE  0000              add [bx+si],al
+000093F0  0000              add [bx+si],al
+000093F2  0000              add [bx+si],al
+000093F4  0000              add [bx+si],al
+000093F6  0000              add [bx+si],al
+000093F8  0000              add [bx+si],al
+000093FA  0000              add [bx+si],al
+000093FC  0000              add [bx+si],al
+000093FE  0000              add [bx+si],al
+00009400  0000              add [bx+si],al
+00009402  0000              add [bx+si],al
+00009404  0000              add [bx+si],al
+00009406  0000              add [bx+si],al
+00009408  0000              add [bx+si],al
+0000940A  0000              add [bx+si],al
+0000940C  0000              add [bx+si],al
+0000940E  0000              add [bx+si],al
+00009410  0000              add [bx+si],al
+00009412  0000              add [bx+si],al
+00009414  0000              add [bx+si],al
+00009416  0000              add [bx+si],al
+00009418  0000              add [bx+si],al
+0000941A  0000              add [bx+si],al
+0000941C  0000              add [bx+si],al
+0000941E  0000              add [bx+si],al
+00009420  0000              add [bx+si],al
+00009422  0000              add [bx+si],al
+00009424  0000              add [bx+si],al
+00009426  0000              add [bx+si],al
+00009428  0000              add [bx+si],al
+0000942A  0000              add [bx+si],al
+0000942C  0000              add [bx+si],al
+0000942E  0000              add [bx+si],al
+00009430  0000              add [bx+si],al
+00009432  0000              add [bx+si],al
+00009434  0000              add [bx+si],al
+00009436  0000              add [bx+si],al
+00009438  0000              add [bx+si],al
+0000943A  0000              add [bx+si],al
+0000943C  0000              add [bx+si],al
+0000943E  0000              add [bx+si],al
+00009440  0000              add [bx+si],al
+00009442  0000              add [bx+si],al
+00009444  0000              add [bx+si],al
+00009446  0000              add [bx+si],al
+00009448  0000              add [bx+si],al
+0000944A  0000              add [bx+si],al
+0000944C  0000              add [bx+si],al
+0000944E  0000              add [bx+si],al
+00009450  0000              add [bx+si],al
+00009452  0000              add [bx+si],al
+00009454  0000              add [bx+si],al
+00009456  0000              add [bx+si],al
+00009458  0000              add [bx+si],al
+0000945A  0000              add [bx+si],al
+0000945C  0000              add [bx+si],al
+0000945E  0000              add [bx+si],al
+00009460  0000              add [bx+si],al
+00009462  0000              add [bx+si],al
+00009464  0000              add [bx+si],al
+00009466  0000              add [bx+si],al
+00009468  0000              add [bx+si],al
+0000946A  0000              add [bx+si],al
+0000946C  0000              add [bx+si],al
+0000946E  0000              add [bx+si],al
+00009470  0000              add [bx+si],al
+00009472  0000              add [bx+si],al
+00009474  0000              add [bx+si],al
+00009476  55                push bp
+00009477  AA                stosb
