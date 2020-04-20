@@ -1,11 +1,10 @@
-BaseOfBoot      equ   0x7c00
+
+%include "common.asm"
+%include "blfunc.asm"
+
 
 org BaseOfBoot
 
-;jmp short BLMain
-;nop
-
-%include "blfunc.asm"
 
 Interface:
 	BaseOfStack      equ BaseOfBoot
@@ -17,7 +16,7 @@ BLMain:
 	mov ax, cs
 	mov ss, ax
 	mov ds, ax
-	
+	mov es, ax
 	mov sp, SPInitValue
 
 	call LoadTarget

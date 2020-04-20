@@ -1,9 +1,12 @@
 
-.PHONY : clean all rebuild
+.PHONY : all clean rebuild
+
+KERNEL_SRC := kmain.c screen.c
+
 RM := rm -rf 
 CFLAGS := -fno-builtin -fno-stack-protector
 
-KERNELADDR := 0xB000
+KERNEL_ADDR := B000
 IMG := DT.OS
 IMG_PATH := /media/zhu/U
 
@@ -12,8 +15,6 @@ DIR_EXES := exes
 DIR_OBJS := objs
 
 DIRS := $(DIR_DEPS) $(DIR_EXES) $(DIR_OBJS)
-
-KERNEL_SRC := kmain.c
 
 BLFUNC_SRC := blfunc.asm
 BOOT_SRC   := boot.asm
@@ -24,13 +25,13 @@ KENTRY_SRC := kentry.asm
 BOOT_OUT    := boot
 LOADER_OUT  := loader
 KERNER_OUT  := kernel
-KMAIN_OUT   := $(DIR_OBJS)/kmain.o
 KENTRY_OUT  := $(DIR_OBJS)/kentry.o
 
 EXE := kernel.out
 EXE := $(addprefix $(DIR_EXES)/,$(EXE))
 
-SRCS := $(wildcard *.c)
+SRCS := $(KERNEL_SRC)
+#SRCS := $(wildcard *.c)
 OBJS := $(SRCS:.c=.o)
 OBJS := $(addprefix $(DIR_OBJS)/, $(OBJS))
 DEPS := $(SRCS:.c=.dep)
@@ -65,7 +66,7 @@ $(LOADER_OUT) : $(LOADER_SRC) $(COMMOM_SRC) $(BLFUNC_SRC)
 	sudo umount $(IMG_PATH)/
 	
 $(KERNER_OUT) : $(EXE)
-	./elf2kobj -c$(KERNELADDR) $^ $@
+	./elf2kobj -c$(KERNEL_ADDR) $^ $@
 	@echo "Compile Kernel.."
 	sudo mount -o loop $(IMG) $(IMG_PATH)/
 	sudo cp $@ $(IMG_PATH)/$@
@@ -78,7 +79,7 @@ $(EXE) : $(KENTRY_OUT) $(OBJS)
 	ld -s $^ -o $@ 
 	
 $(DIR_OBJS)/%.o : %.c
-	gcc $(CFLAGS) -o $@ -c $(filter %.c, $^)
+	gcc $(CFLAGS) -c $(filter %.c, $^) -o $@
 	
 $(DIRS) : 
 	mkdir $@
@@ -100,3 +101,6 @@ clean :
 rebuild : 
 	@$(MAKE) clean
 	@$(MAKE) all
+	
+
+	
