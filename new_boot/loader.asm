@@ -66,6 +66,8 @@ BLMain:
 
     ; 1. load GDT
     lgdt [GdtPtr]
+	
+	call StoreGlobal
     
     ; 2. close interrupt
     cli 
@@ -116,7 +118,12 @@ InitDescItem:
     pop eax
     
     ret
-
+	
+StoreGlobal:
+	mov eax, dword [GdtPtr + 2]
+	mov dword [GDTEntry], eax
+	mov dword [GDTSize], GdtLen / 8
+	ret
     
 [section .s32]
 [bits 32]

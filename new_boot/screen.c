@@ -1,4 +1,4 @@
-#include "kernel.h"
+#include "const.h"
 #include "screen.h"
 
 static int gPosW = 0;
