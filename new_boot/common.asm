@@ -2,8 +2,14 @@ BaseOfBoot    equ    0x7C00
 BaseOfLoader  equ    0x9000
 BaseOfKernel  equ    0xB000
 
-GDTEntry      equ    0xA000
-GDTSize       equ    0xA000 + 4
+BaseOfShareMemory   equ  0xA000
+
+GDTEntry      equ    BaseOfShareMemory + 0
+GDTSize       equ    BaseOfShareMemory + 4
+IdtEntry      equ    BaseOfShareMemory + 8
+IdtSize       equ    BaseOfShareMemory + 12
+RunTaskEntry  equ    BaseOfShareMemory + 16
+
 
 ;8259A Ports
 MASTER_ICW1_PORT     equ  0x20

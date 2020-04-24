@@ -6,6 +6,7 @@ global _start
 extern KMain
 extern ClearScreen
 extern gGdtInfo
+extern RunTask
 
 [section .text]
 _start:
@@ -26,6 +27,9 @@ InitGlobal:
 	mov [gGdtInfo], eax
 	mov eax, dword [GDTSize]
 	mov [gGdtInfo + 4], eax
+	
+	mov eax, dword [RunTaskEntry]
+	mov [RunTask], eax
 	
 	leave
 	
