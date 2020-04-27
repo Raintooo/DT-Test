@@ -5,8 +5,13 @@ global _start
 
 extern KMain
 extern ClearScreen
+extern InitInterrupt
+extern EnableTimer
+extern SendEIO
+extern gIdtInfo
 extern gGdtInfo
 extern RunTask
+
 
 [section .text]
 _start:
@@ -30,6 +35,21 @@ InitGlobal:
 	
 	mov eax, dword [RunTaskEntry]
 	mov [RunTask], eax
+	
+	mov eax, dword [IDTEntry]
+	mov [gIdtInfo], eax
+	mov eax, dword [IDTSize]
+	mov dword [gIdtInfo + 4], eax
+	
+	
+	mov eax, dword [InitInterruptEntry]
+	mov [InitInterrupt], eax
+	
+	mov eax, dword [EnableTimerEntry]
+	mov [EnableTimer], eax
+	
+	mov eax, dword [SendEIOEntry]
+	mov [SendEIO], eax
 	
 	leave
 	

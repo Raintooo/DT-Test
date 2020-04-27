@@ -34,6 +34,19 @@ Code32FlatSelector     equ (0x0003 << 3) + SA_TIG + SA_RPL0
 Data32FlatSelector     equ (0x0004 << 3) + SA_TIG + SA_RPL0
 
 ; end of [section .gdt]
+
+[section .idt]
+align 32
+[bits 32]
+IDT_ENTRY:
+%rep 256
+				Gate    Code32Selector,   DefaultHandlerLen,      0,  DA_386IGate + DA_DPL0
+%endrep
+IdtLen    equ  $ - IDT_ENTRY
+IdtPtr:
+          dw   IdtLen - 1
+		  dd   0
+		  
 		  
 
 TopOfStack16    equ 0x7c00
@@ -61,6 +74,13 @@ BLMain:
     add eax, GDT_ENTRY
     mov dword [GdtPtr + 2], eax
 	
+	; initialize IDT pointer struct
+	mov eax, 0
+	mov ax, ds
+	shl eax, 4
+	add eax, IDT_ENTRY
+	mov dword [IdtPtr + 2], eax
+	
 	call LoadTarget
 	
 	cmp dx, 0
@@ -69,6 +89,10 @@ BLMain:
 
     ; 1. load GDT
     lgdt [GdtPtr]
+	
+	; load IDT
+	lidt [IdtPtr]
+    
 	
 	call StoreGlobal
     
@@ -127,7 +151,14 @@ StoreGlobal:
 	mov dword [GDTEntry], eax
 	mov dword [GDTSize], GdtLen / 8
 	
+	mov eax, dword [IdtPtr + 2]
+	mov dword [IDTEntry], eax
+	mov dword [IDTSize], IdtLen / 8
+	
 	mov dword [RunTaskEntry], RunTask
+	mov dword [InitInterruptEntry], InitInterrupt
+	mov dword [EnableTimerEntry], EnableTimerFunc
+	mov dword [SendEIOEntry], SendEIO
 	
 	ret
 	
@@ -136,9 +167,9 @@ StoreGlobal:
 ; Paramter --> Task* p
 RunTask:
 	push ebp
-	mov ebp, esp
+	mov ebp, esp          ;mov value in esp to ebp  
 	
-	mov esp, [ebp + 8] ; store First Paramter
+	mov esp, [ebp + 8]    ; store First Paramter
 	
 	lldt word [esp + 200] ; load ldt
 	ltr  word [esp + 202] ; load tss
@@ -153,6 +184,151 @@ RunTask:
 	add esp, 4
 	
 	iret
+;
+;
+InitInterrupt:
+	push ebp
+	mov ebp, esp
+	
+	push ax
+    push dx
+	
+	call Init8259A
+	
+	sti
+	
+    mov al, 0xFF
+	mov dx, MASTER_IMR_PORT
+	call WriteIMR
+	
+	mov al, 0xFF
+	mov dx, SLAVE_IMR_PORT
+	call WriteIMR
+	
+	pop dx
+    pop ax
+
+	leave
+	ret
+
+;
+;
+EnableTimerFunc:
+	push ebp
+	mov ebp, esp
+
+	push ax
+	push dx
+
+	
+	mov dx, MASTER_IMR_PORT
+	call ReadIMR
+	
+	and ax, 0xFE
+	call WriteIMR
+	
+	pop dx
+	pop ax
+	
+	leave
+	
+	ret
+;
+;paramter  --> port
+SendEIO:
+	push ebp
+	mov ebp, esp
+	
+	mov edx, [ebp + 8]
+	mov al, 0x20
+	out dx, al
+	
+	leave
+	ret
+	
+[section .sfunc]
+[bits 32]
+
+Init8259A:
+	push ax
+	
+	;master
+	;ICW1
+	mov al, 00010001B
+	out MASTER_ICW1_PORT, al
+	call Delay
+	
+	;ICW2
+	mov al, 0x20
+	out MASTER_ICW2_PORT, al
+	call Delay
+	
+	;ICW3
+	mov al, 00000100B
+	out MASTER_ICW3_PORT, al
+	call Delay
+	
+	;ICW4
+	mov al, 00010001B
+	out MASTER_ICW4_PORT, al
+	call Delay
+	
+	;Slave
+	;ICW1
+	mov al, 00010001B
+	out SLAVE_ICW1_PORT, al
+	call Delay
+	
+	;ICW2
+	mov al, 0x28
+	out SLAVE_ICW2_PORT, al
+	call Delay
+	
+	;ICW3
+	mov al, 00000010B
+	out SLAVE_ICW3_PORT, al
+	call Delay
+	
+	;ICW4
+	mov al, 00000001B
+	out SLAVE_ICW4_PORT, al
+	call Delay
+	
+	pop ax
+
+	ret
+
+
+; dx --> 8259A port
+; return ax --> IMR register value
+ReadIMR:
+	in ax, dx
+	call Delay
+	ret
+	
+; al --> IMR register value
+; dx --> 8259A port
+WriteIMR:
+	out dx, al
+	call Delay
+	ret
+
+; dx --> 8259A port 
+WriteEOI:
+	push ax
+	
+	mov al, 0x20
+	out dx, al
+	call Delay
+	
+	pop ax
+	ret
+
+Delay:
+	%rep 5
+	nop
+	%endrep
+	ret
 
     
 [section .s32]
@@ -172,6 +348,10 @@ CODE32_SEGMENT:
 	mov esp, BaseOfLoader
 
     jmp dword Code32FlatSelector : BaseOfTarget
+	
+DefalutHandlerFunc:
+	iret
+DefaultHandlerLen      equ  DefalutHandlerFunc - $$
 
 Code32SegLen   equ   $ - CODE32_SEGMENT
 

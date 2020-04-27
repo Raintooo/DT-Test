@@ -18,8 +18,6 @@ int SetDescValue(Descriptor* pDesc, uint base, uint limit, ushort attr)
 	return ret;
 }
 
-
-
 int GetDescValue(Descriptor* pDesc, uint* pbase, uint* plimit, ushort* pattr)
 {
 	int ret;
@@ -29,6 +27,34 @@ int GetDescValue(Descriptor* pDesc, uint* pbase, uint* plimit, ushort* pattr)
 		*pbase = (pDesc->base3 << 24) | (pDesc->base2 << 16) | pDesc->base1;
 		*plimit = ((pDesc->attr2_limit2 & 0xF) << 16) | pDesc->limit1;
 		*pattr = ((pDesc->attr2_limit2 & 0xF0) << 8) | pDesc->attr1;
+	}
+	
+	return ret;
+}
+
+int SetInitHandler(Gate* pGate, uint ifunc)
+{
+	int ret = 0;
+	
+	if( ret = (pGate != NULL))
+	{
+		pGate->offset1 = ifunc & 0xFFFF;
+		pGate->selector = GDT_CODE32_FLAT_SELECTOR;
+		pGate->count = 0;
+		pGate->attr = DA_386IGate + DA_DPL0;
+		pGate->offset2 = (ifunc >> 16) & 0xFFFF;
+	}
+	
+	return ret;
+}
+
+int GetInitHandler(Gate* pGate, uint* ifunc)
+{
+	int ret = 0;
+	
+	if( ret = ((pGate != NULL) && (ifunc != NULL)))
+	{
+		*ifunc = (pGate->offset1) | (pGate->offset2 << 16);
 	}
 	
 	return ret;

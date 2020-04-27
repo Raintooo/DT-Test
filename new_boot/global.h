@@ -4,6 +4,7 @@
 #include "kernel.h"
 
 extern GdtInfo gGdtInfo;
+extern IdtInfo gIdtInfo;
 extern void (* RunTask)(Task* p);
 
 #endif

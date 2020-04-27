@@ -20,6 +20,21 @@ typedef struct
 	const int size;
 }GdtInfo;
 
+typedef struct
+{
+	ushort offset1;
+	ushort selector;
+	byte   count;
+	byte   attr;
+	ushort offset2;
+}Gate;
+
+typedef struct
+{
+	Gate* entry;
+	const int size;
+}IdtInfo;
+
 
 typedef struct
 {
@@ -68,6 +83,8 @@ typedef struct
 
 int SetDescValue(Descriptor* pDesc, uint base, uint limit, ushort attr);
 int GetDescValue(Descriptor* pDesc, uint* pbase, uint* plimit, ushort* pattr);
+int SetInitHandler(Gate* pGate, uint ifunc);
+int GetInitHandler(Gate* pGate, uint* ifunc);
 
 #endif
 

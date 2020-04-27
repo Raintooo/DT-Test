@@ -4,11 +4,14 @@ BaseOfKernel  equ    0xB000
 
 BaseOfShareMemory   equ  0xA000
 
-GDTEntry      equ    BaseOfShareMemory + 0
-GDTSize       equ    BaseOfShareMemory + 4
-IdtEntry      equ    BaseOfShareMemory + 8
-IdtSize       equ    BaseOfShareMemory + 12
-RunTaskEntry  equ    BaseOfShareMemory + 16
+GDTEntry           equ    BaseOfShareMemory + 0
+GDTSize            equ    BaseOfShareMemory + 4
+IDTEntry           equ    BaseOfShareMemory + 8
+IDTSize            equ    BaseOfShareMemory + 12
+RunTaskEntry       equ    BaseOfShareMemory + 16
+InitInterruptEntry equ    BaseOfShareMemory + 20
+EnableTimerEntry   equ    BaseOfShareMemory + 24
+SendEIOEntry       equ    BaseOfShareMemory + 28
 
 
 ;8259A Ports
