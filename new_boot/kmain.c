@@ -7,6 +7,9 @@ void (* InitInterrupt)() = NULL;
 void (* EnableTimer)() = NULL;
 void (* SendEIO)(uint port) = NULL;
 Task p = {0};
+Task* TaskStatus = NULL;
+
+void TimerHandlerEntry();
 
 void Delay()
 {
@@ -55,8 +58,6 @@ void TimerHandler()
 	}
 	
 	SendEIO(MASTER_EOI_PORT);
-	
-	asm volatile("leave\n""iret\n");
 
 }
 
@@ -99,7 +100,7 @@ void KMain()
 	p.rv.esp = (uint)(p.stack + sizeof(p.stack));
 	p.rv.eip = (uint)(RunTaskA);
 	p.rv.eflags = 0x3202;
-	p.tss.esp0 = 0x9000;
+	p.tss.esp0 = (uint)&p.rv + sizeof(p.rv);
 	p.tss.ss0 = GDT_DATA32_FLAT_SELECTOR;
 	p.tss.iomb = sizeof(p.tss);
 	
@@ -114,7 +115,9 @@ void KMain()
 	SetDescValue(&gGdtInfo.entry[GDT_TASK_LDT_INDEX], (uint)&p.ldt, sizeof(p.ldt)-1, DA_LDT + DA_DPL0);
 	SetDescValue(&gGdtInfo.entry[GDT_TASK_TSS_INDEX], (uint)&p.tss, sizeof(p.tss)-1, DA_386TSS + DA_DPL0);
 	
-	SetInitHandler(gIdtInfo.entry + 0x20, (uint)TimerHandler);
+	SetInitHandler(gIdtInfo.entry + 0x20, (uint)TimerHandlerEntry);
+	
+	TaskStatus = &p;
 	
 	InitInterrupt();
 	EnableTimer();

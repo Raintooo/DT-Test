@@ -1,7 +1,7 @@
 %include "common.asm"
 
 global _start
-
+global TimerHandlerEntry
 
 extern KMain
 extern ClearScreen
@@ -11,7 +11,40 @@ extern SendEIO
 extern gIdtInfo
 extern gGdtInfo
 extern RunTask
+extern TimerHandler
+extern TaskStatus
 
+%macro ISREntry 0
+	; ss esp eflags cs eip were pushed when intterupt occured
+	sub esp, 4 ; 
+	
+	pushad
+	
+	push ds
+	push es
+	push fs
+	push gs
+	
+	mov esp, BaseOfLoader ; 0xa000
+	
+	call TimerHandler
+%endmacro
+
+%macro ISREnd 0
+	mov esp, [TaskStatus]
+	
+	pop gs
+	pop fs
+	pop es
+	pop ds
+	
+	popad
+	
+	
+	add esp, 4
+	
+	iret  ; ss esp eflags cs eip were poped when intterupt finish
+%endmacro
 
 [section .text]
 _start:
@@ -54,3 +87,23 @@ InitGlobal:
 	leave
 	
 	ret
+	
+	
+	
+TimerHandlerEntry:
+
+	ISREntry
+
+	call TimerHandler
+
+	ISREnd
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

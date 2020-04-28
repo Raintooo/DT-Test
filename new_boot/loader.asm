@@ -242,6 +242,7 @@ SendEIO:
 	mov edx, [ebp + 8]
 	mov al, 0x20
 	out dx, al
+	call Delay
 	
 	leave
 	ret
