@@ -12,6 +12,7 @@ RunTaskEntry       equ    BaseOfShareMemory + 16
 InitInterruptEntry equ    BaseOfShareMemory + 20
 EnableTimerEntry   equ    BaseOfShareMemory + 24
 SendEIOEntry       equ    BaseOfShareMemory + 28
+LoadTaskEntry      equ    BaseOfShareMemory + 32
 
 
 ;8259A Ports

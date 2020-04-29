@@ -5,6 +5,7 @@
 
 extern GdtInfo gGdtInfo;
 extern IdtInfo gIdtInfo;
-extern void (* RunTask)(Task* p);
+extern void (* RunTask)(volatile Task* p);
+extern void (* LoadTask)(volatile Task* p);
 
 #endif

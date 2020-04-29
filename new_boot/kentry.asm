@@ -12,7 +12,8 @@ extern gIdtInfo
 extern gGdtInfo
 extern RunTask
 extern TimerHandler
-extern TaskStatus
+extern gCTaskAddr
+extern LoadTask
 
 %macro ISREntry 0
 	; ss esp eflags cs eip were pushed when intterupt occured
@@ -31,7 +32,7 @@ extern TaskStatus
 %endmacro
 
 %macro ISREnd 0
-	mov esp, [TaskStatus]
+	mov esp, [gCTaskAddr]
 	
 	pop gs
 	pop fs
@@ -74,6 +75,8 @@ InitGlobal:
 	mov eax, dword [IDTSize]
 	mov dword [gIdtInfo + 4], eax
 	
+	mov eax, dword [LoadTaskEntry]
+	mov [LoadTask], eax
 	
 	mov eax, dword [InitInterruptEntry]
 	mov [InitInterrupt], eax

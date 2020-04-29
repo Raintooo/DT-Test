@@ -156,6 +156,7 @@ StoreGlobal:
 	mov dword [IDTSize], IdtLen / 8
 	
 	mov dword [RunTaskEntry], RunTask
+	mov dword [LoadTaskEntry], LoadTask
 	mov dword [InitInterruptEntry], InitInterrupt
 	mov dword [EnableTimerEntry], EnableTimerFunc
 	mov dword [SendEIOEntry], SendEIO
@@ -184,6 +185,20 @@ RunTask:
 	add esp, 4
 	
 	iret
+	
+; void LoadTask(Task* p)
+;
+LoadTask:
+	push ebp
+	mov ebp, esp
+	
+	mov eax, [ebp + 8] ; get paramter
+
+	lldt word [eax + 200]
+
+	leave
+	ret
+	
 ;
 ;
 InitInterrupt:
