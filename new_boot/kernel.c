@@ -1,5 +1,7 @@
 #include "kernel.h"
 
+GdtInfo gGdtInfo = {0};
+IdtInfo gIdtInfo = {0};
 
 int SetDescValue(Descriptor* pDesc, uint base, uint limit, ushort attr)
 {
@@ -32,30 +34,3 @@ int GetDescValue(Descriptor* pDesc, uint* pbase, uint* plimit, ushort* pattr)
 	return ret;
 }
 
-int SetInitHandler(Gate* pGate, uint ifunc)
-{
-	int ret = 0;
-	
-	if( ret = (pGate != NULL))
-	{
-		pGate->offset1 = ifunc & 0xFFFF;
-		pGate->selector = GDT_CODE32_FLAT_SELECTOR;
-		pGate->count = 0;
-		pGate->attr = DA_386IGate + DA_DPL0;
-		pGate->offset2 = (ifunc >> 16) & 0xFFFF;
-	}
-	
-	return ret;
-}
-
-int GetInitHandler(Gate* pGate, uint* ifunc)
-{
-	int ret = 0;
-	
-	if( ret = ((pGate != NULL) && (ifunc != NULL)))
-	{
-		*ifunc = (pGate->offset1) | (pGate->offset2 << 16);
-	}
-	
-	return ret;
-}

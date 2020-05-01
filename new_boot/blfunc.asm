@@ -96,14 +96,11 @@ loading:
 	add si, 0x1000
 	mov es, si
 	mov si, 0
-	
 continue:
 	jmp loading
 	
 finish:
 	ret
-	
-	
 	
 Print :
 	mov ax, 0x1301
@@ -159,9 +156,7 @@ read:
 ;es:di --> destination
 ;cx    --> length
 MemoryCmp:
-	push si
-	push di
-	push ax
+
 compare:
 	cmp cx, 0
 	jz equal
@@ -178,19 +173,13 @@ goon:
 	
 equal:
 noequal:
-	pop ax
-	pop di
-	pop si
+
 	ret
 
 ;ds:si --> source 
 ;es:di --> destination
 ;cx    --> length
 MemoryCopy:
-	push si
-	push di
-	push cx
-	push ax
 	
 	cmp si, di
 	ja btoe
@@ -224,10 +213,7 @@ etob:
 	jmp etob
 
 done:
-	pop si
-	pop di
-	pop cx
-	pop ax
+
 	ret
 
 ;es:bx  --> root entry offset address

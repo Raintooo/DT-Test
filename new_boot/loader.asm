@@ -172,8 +172,8 @@ RunTask:
 	
 	mov esp, [ebp + 8]    ; store First Paramter
 	
-	lldt word [esp + 200] ; load ldt
-	ltr  word [esp + 202] ; load tss
+	lldt word [esp + 96] ; load ldt
+	ltr  word [esp + 98] ; load tss
 	
 	pop gs
 	pop fs
@@ -194,7 +194,7 @@ LoadTask:
 	
 	mov eax, [ebp + 8] ; get paramter
 
-	lldt word [eax + 200]
+	lldt word [eax + 96]
 
 	leave
 	ret

@@ -65,6 +65,6 @@
 #define	LDT_DATA32_SELECTOR    ((LDT_DATA32_INDEX << 3) + SA_TIL + SA_RPL3)	
 
 #define MASTER_EOI_PORT   0x20
-#define SLAVE_EIO_PORT    0xA0
+#define SLAVE_EOI_PORT    0xA0
 
 #endif

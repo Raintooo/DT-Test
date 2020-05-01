@@ -1,10 +1,8 @@
 
-%include "common.asm"
 %include "blfunc.asm"
-
+%include "common.asm"
 
 org BaseOfBoot
-
 
 Interface:
 	BaseOfStack      equ BaseOfBoot
@@ -33,9 +31,7 @@ output:
 
     jmp $  
 	
-
-
-ErrStr db "LOADER was not found!"
+ErrStr db "no LOADER"
 ErrLen equ ($-ErrStr)
 
 Buf:
